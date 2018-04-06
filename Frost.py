@@ -723,6 +723,21 @@ class Frost:
                     query_parameters+= f'&{key}={value}'
         return query_parameters
 
+    def nearest_station(self,
+                        latitude: float,
+                        longitude: float) -> None:
+        status_code, response_json = self.get_sources(
+                geometry = f'nearest(POINT ({longitude} {latitude}))')
+        data = response_json['data'][0]
+        station_name = data['name']
+        coords = data['geometry']['coordinates']
+        measurement_type = data['@type']
+        station_id = data['id']
+        status_code, response_json = self.get_observations_available_time_series(
+                sources = f'{station_id}:all')
+        for data in response_json['data']:
+            print(data)
+
     def test_gets(self) -> None: 
         status_code, response_json = self.get_elements_code_tables()
         status_code, response_json = self.get_elements() 
@@ -743,4 +758,9 @@ class Frost:
 
 if __name__=='__main__':
     test = Frost()
-    test.test_gets()
+    #test.test_gets()
+    test.nearest_station(latitude=59.9138688,longitude=10.752245399999993)
+    #status_code, response_json = test.get_observations_available_time_series(
+    #        sources = 'SN18700')
+    #for data in response_json['data']:
+    #    print(data)
