@@ -2,7 +2,7 @@
 Copyright 2018 Expert Analytics AS
 
 This file is licensed under the terms of the MIT license.
-See <https://github.com/expertanalytics/Frost/LICENSE.txt>
+See <https://github.com/expertanalytics/frost/blob/master/LICENSE>
 """
 
 import requests
