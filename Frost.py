@@ -12,6 +12,7 @@ class Frost:
     def __init__(self) -> None:
         self.base_url = 'https://frost.met.no/'
         self.headers = {}
+        self.api_version = '0'
         with open('secrets/credentials.txt', 'r') as secrets:
             client_id, client_secret  = secrets.readlines()
             client_id = client_id.split(' # ')[0].strip()
@@ -22,10 +23,10 @@ class Frost:
                                  *,
                                  ids: str = None,
                                  fields: str = None,
-                                 lang: str = 'en-US') -> 'response json':
+                                 lang: str = 'en-US') -> (int, 'response json'):
         """
         Description:
-            /elements/codeTables/v0.{format}
+            GET /elements/codeTables/v0.{format}
             Get metadata about the code tables available in the Frost API. A 
             code table defines a small number of 
             discrete values for an element. Use the query parameters to filter 
@@ -46,7 +47,7 @@ class Frost:
         input_vars = inspect.getargvalues(inspect.currentframe()).locals
         del input_vars['self']
         query_parameters = self.query_parameters(input_vars)
-        url = self.base_url + 'elements/codeTables/v0.jsonld?'
+        url = self.base_url + f'elements/codeTables/v{self.api_version}.jsonld?'
 
         response = self.get_response(url + query_parameters)
         return response.status_code, response.json() 
@@ -70,10 +71,10 @@ class Frost:
                      cf_units: str = None,
                      cf_statuses: str = None,
                      fields: str = None,
-                     lang: str = 'en-US') -> 'response json':
+                     lang: str = 'en-US') -> (int, 'response json'):
         """
         Description:
-            /elements/v0.{format}
+            GET /elements/v0.{format}
             Get metadata about the weather and climate elements that are 
             defined for use in the Frost API. Use the query parameters to 
             filter which elements to return and what fields to include for each 
@@ -143,7 +144,7 @@ class Frost:
         input_vars = inspect.getargvalues(inspect.currentframe()).locals
         del input_vars['self']
         query_parameters = self.query_parameters(input_vars)
-        url = self.base_url + 'elements/v0.jsonld?'
+        url = self.base_url + f'elements/v{self.api_version}.jsonld?'
 
         response = self.get_response(url + query_parameters)
         return response.status_code, response.json() 
@@ -164,10 +165,10 @@ class Frost:
                     icao_code: str = None,
                     ship_code: str = None,
                     wigos_id: str = None,
-                    fields: str = None) -> 'response json':
+                    fields: str = None) -> (int, 'response json'):
         """
         Description:
-            /sources/v0.{format}
+            GET /sources/v0.{format}
             Get metadata for the source entitites defined in the Frost API. Use 
             the query parameters to filter the set of sources returned. Leave 
             the query parameters blank to select all sources.
@@ -234,7 +235,7 @@ class Frost:
         input_vars = inspect.getargvalues(inspect.currentframe()).locals
         del input_vars['self']
         query_parameters = self.query_parameters(input_vars)
-        url = self.base_url + 'sources/v0.jsonld?'
+        url = self.base_url + f'sources/v{self.api_version}.jsonld?'
 
         response = self.get_response(url + query_parameters)
         return response.status_code, response.json() 
@@ -243,7 +244,7 @@ class Frost:
                       *,
                       names: str = None,
                       geometry: str = None,
-                      fields: str = None) -> 'response json':
+                      fields: str = None) -> (int, 'response json'):
         """
         Description:
             /locations/v0.{format} 
@@ -267,7 +268,7 @@ class Frost:
         input_vars = inspect.getargvalues(inspect.currentframe()).locals
         del input_vars['self']
         query_parameters = self.query_parameters(input_vars)
-        url = self.base_url + 'locations/v0.jsonld?'
+        url = self.base_url + f'locations/v{self.api_version}.jsonld?'
 
         response = self.get_response(url + query_parameters)
         return response.status_code, response.json() 
@@ -280,7 +281,7 @@ class Frost:
                     municipalities: str = None,
                     elements: str = None,
                     months: str = None,
-                    fields: str = None) -> 'response json':
+                    fields: str = None) -> (int, 'response json'):
         """
         Description:
             /records/countyExtremes/v0.{format}
@@ -315,7 +316,7 @@ class Frost:
         input_vars = inspect.getargvalues(inspect.currentframe()).locals
         del input_vars['self']
         query_parameters = self.query_parameters(input_vars)
-        url = self.base_url + 'records/countyExtremes/v0.jsonld?'
+        url = self.base_url + f'records/countyExtremes/v{self.api_version}.jsonld?'
 
         response = self.get_response(url + query_parameters)
         return response.status_code, response.json() 
@@ -335,7 +336,7 @@ class Frost:
                                                fields: str = None) -> (int, 'response json'):
         """
         Description:
-            /observations/availableTimeSeries/v0.{format} 
+            GET /observations/availableTimeSeries/v0.{format} 
             Find timeseries metadata by source and/or element
         Args:
             sources:                The ID(s) of the data sources to get time 
@@ -401,7 +402,7 @@ class Frost:
         input_vars = inspect.getargvalues(inspect.currentframe()).locals
         del input_vars['self']
         query_parameters = self.query_parameters(input_vars)
-        url = self.base_url + 'observations/availableTimeSeries/v0.jsonld?'
+        url = self.base_url + f'observations/availableTimeSeries/v{self.api_version}.jsonld?'
 
         response = self.get_response(url + query_parameters)
         return response.status_code, response.json() 
@@ -413,7 +414,7 @@ class Frost:
                                  lang: str = 'en-US') -> (int, 'response json'):
         """
         Description:
-            /observations/quality/v0.{format} 
+            GET /observations/quality/v0.{format} 
             Get detailed information about the quality of an observation. This 
             provides detailed information about an observation's parameter's 
             quality.
@@ -424,10 +425,9 @@ class Frost:
             lang:   ISO language/locale of return values.
         """
         input_vars = inspect.getargvalues(inspect.currentframe()).locals
-        print(input_vars)
         del input_vars['self']
         query_parameters = self.query_parameters(input_vars)
-        url = self.base_url + 'observations/quality/v0.jsonld?'
+        url = self.base_url + f'observations/quality/v{self.api_version}.jsonld?'
 
 
         response = self.get_response(url + query_parameters)
@@ -439,7 +439,7 @@ class Frost:
                                                  fields: str = None) -> (int, 'response json'):
         """
         Descripton:
-            /observations/availableQualityCodes/v0.{format} 
+            GET /observations/availableQualityCodes/v0.{format} 
             Get information about the existing quality flags. This provides a 
             list of all possible detail values given in the quality service.
         Args:
@@ -449,7 +449,7 @@ class Frost:
         input_vars = inspect.getargvalues(inspect.currentframe()).locals
         del input_vars['self']
         query_parameters = self.query_parameters(input_vars)
-        url = self.base_url + 'observations/availableQualityCodes/v0.jsonld?'
+        url = self.base_url + f'observations/availableQualityCodes/v{self.api_version}.jsonld?'
         
         response = self.get_response(url + query_parameters)
         return response.status_code, response.json() 
@@ -467,7 +467,7 @@ class Frost:
                          fields: str = None) -> (int, 'response json'):
         """
         Description:
-            /observations/v0.{format} 
+            GET /observations/v0.{format} 
             Get observation data from the Frost API. This is the core resource 
             for retrieving the actual observation data from MET Norway's data 
             storage systems. The query parameters act as a filter; if all were 
@@ -527,7 +527,163 @@ class Frost:
         input_vars = inspect.getargvalues(inspect.currentframe()).locals
         del input_vars['self']
         query_parameters = self.query_parameters(input_vars)
-        url = self.base_url + 'observations/v0.jsonld?'
+        url = self.base_url + f'observations/v{self.api_version}.jsonld?'
+
+        response = self.get_response(url + query_parameters)
+        return response.status_code, response.json() 
+
+    def get_climate_normals(self,
+                            sources: str,
+                            *,
+                            elements: str = None,
+                            period: str = None) -> (int, 'response json'):
+        """
+        Description:
+            GET /climatenormals/v0.{format}
+            Get climate normals. To be expanded.
+        Args:
+            sources:    The sources to get climate normals for as a 
+                        comma-separated list. Each source should be of the form 
+                        SN<number>.
+            elements:   The elements to get climate normals for as a 
+                        comma-separated list of search filters.
+            period:     The validity period, e.g. '1931/1960'. If specified, 
+                        only climate normals for this period will be returned.
+        """
+
+        input_vars = inspect.getargvalues(inspect.currentframe()).locals
+        del input_vars['self']
+        query_parameters = self.query_parameters(input_vars)
+        url = self.base_url + f'climatenormals/v{self.api_version}.jsonld?'
+
+        response = self.get_response(url + query_parameters)
+        return response.status_code, response.json() 
+
+    def get_climate_normals_available(self,
+                                      *,
+                                      sources: str = None,
+                                      elements: str = None,
+                                      periods: str = None,
+                                      fields: str = None) -> (int, 'response json'):
+        """
+        Description:
+            GET /climatenormals/available/v0.{format}
+            Get available combinations of sources, elements, and periods for 
+            climate normals. To be expanded.
+        Args:
+            sources:    If specified, only combinations matching these sources 
+                        may be included in the output. Enter a comma-separated 
+                        list of sources of the form SN<number>. If omitted, any 
+                        source will match.
+            elements:   If specified, only combinations matching these elements 
+                        may be included in the output. Enter a comma-separated 
+                        list of element names in the form of search filters. If 
+                        omitted, any element will match.
+            periods:    If specified, only combinations matching these validity 
+                        periods may be included in the output. Enter a 
+                        comma-separated list of validity period of the form 
+                        '<from year>/<to year>', e.g. '1931/1960'. If omitted, 
+                        any period will match.
+            fields:     Specifies what information to return as a 
+                        comma-separated list of 'sourceid', 'elementid', or 
+                        'period'. For example, 'sourceid,period' specifies that 
+                        only source IDs and periods will appear in the output. 
+                        If omitted, all fields are returned.
+        """
+
+        input_vars = inspect.getargvalues(inspect.currentframe()).locals
+        del input_vars['self']
+        query_parameters = self.query_parameters(input_vars)
+        url = self.base_url + f'climatenormals/available/v{self.api_version}.jsonld?'
+
+        response = self.get_response(url + query_parameters)
+        return response.status_code, response.json() 
+
+    def get_frequencies_rainfall(self,
+                                 *,
+                                 sources: str = None,
+                                 location: str = None,
+                                 duration: str = None,
+                                 frequencies: str = None,
+                                 unit: str = None,
+                                 fields: str = None) -> (int, 'response json'):
+        """
+        Description:
+            GET /frequencies/rainfall/v0.{format}
+            Get rainfall IDF data. To be expanded.
+        Args:
+            sources:        The Frost API source ID(s) that you want IDF data 
+                            for. Enter either a comma-separated list of one or 
+                            more stations (each of the form 
+                            SN<number>[:<number>|all]), or the name of a 
+                            gridded dataset. If left out, IDF data for all 
+                            available station sources is returned.
+            location:       The geographic position from which to get IDF data 
+                            in case of a gridded dataset. Format: 
+                            POINT(<longitude degrees> <latitude degrees>). Data 
+                            from the nearest grid point is returned.
+            durations:      The Frost API IDF duration(s), in minutes, that you 
+                            want IDF data for. Enter a comma-separated list to 
+                            select multiple durations.
+            frequencies:    The Frost API IDF frequencies (return periods), in 
+                            years, that you want IDF data for. Enter a 
+                            comma-separated list to select multiple 
+                            frequencies.
+            unit:           The unit of measure for the intensity. Specify 'mm' 
+                            for millimetres per minute multiplied by the 
+                            duration, or 'l/sHa' for litres per second per 
+                            hectar. The default unit is 'l/sHa'
+            fields:         A comma-separated list of the fields that should be 
+                            present in the response. The sourceId and values 
+                            attributes will always be returned in the query 
+                            result. Leaving this parameter empty returns all 
+                            attributes; otherwise only those properties listed 
+                            will be visible in the result set (in addition to 
+                            the sourceId and values); e.g.: 
+                            unit,numberOfSeasons will show only sourceId, unit, 
+                            numberOfSeasons, and values in the response.
+        """
+
+        input_vars = inspect.getargvalues(inspect.currentframe()).locals
+        del input_vars['self']
+        query_parameters = self.query_parameters(input_vars)
+        url = self.base_url + f'frequencies/rainfall/v{self.api_version}.jsonld?'
+
+        response = self.get_response(url + query_parameters)
+        return response.status_code, response.json() 
+        
+    def get_frequencies_rainfall_available_sources(self,
+                                                   *,
+                                                   sources: str = None,
+                                                   types: str = None,
+                                                   fields: str = None) -> (int, 'response json'):
+        """
+        Description:
+            GET /frequencies/rainfall/availableSources/v0.{format} 
+            Get available sources for rainfall IDF data.
+        Args:
+            sources:    The Frost API source ID(s) that you want information 
+                        for. Enter either a comma-separated list of one or more 
+                        stations (each of the form SN<number>[:<number>|all]), 
+                        or the name of a gridded dataset. If left out, 
+                        information for all available sources is returned.
+            types:      The type(s) of Frost API source that you want 
+                        information for. Enter a comma-separated list to select 
+                        multiple types.
+            fields:     A comma-separated list of the fields that should be 
+                        present in the response. The sourceId attribute will 
+                        always be returned in the query result. Leaving this 
+                        parameter empty returns all attributes; otherwise only 
+                        those properties listed will be visible in the result 
+                        set (in addition to the sourceId); e.g.: 
+                        validFrom,numberOfSeasons will show only sourceId, 
+                        validFrom, and numberOfSeasons in the response.
+        """
+
+        input_vars = inspect.getargvalues(inspect.currentframe()).locals
+        del input_vars['self']
+        query_parameters = self.query_parameters(input_vars)
+        url = self.base_url + f'frequencies/rainfall/availableSources/v{self.api_version}.jsonld?'
 
         response = self.get_response(url + query_parameters)
         return response.status_code, response.json() 
@@ -566,6 +722,11 @@ class Frost:
                                                            reference_time = 'latest',
                                                            elements='air_pressure_at_sea_level') 
         status_code, response_json = self.get_observations_quality(flags=70000)
+        status_code, response_json = self.get_climate_normals(sources = 'SN18700')
+        status_code, response_json = self.get_climate_normals_available()
+        status_code, response_json = self.get_frequencies_rainfall()
+        status_code, response_json = self.get_frequencies_rainfall_available_sources()
+
 
 if __name__=='__main__':
     test = Frost()
