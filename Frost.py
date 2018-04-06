@@ -690,6 +690,12 @@ class Frost:
 
     def get_response(self,
                      url: str) -> 'GET response':
+        """
+        Description:
+            Calls the API and checks if the response was successfull
+        Args:
+            url:    The url which is to be used in the GET request
+        """
         with requests.get(url, headers=self.headers, auth=self.auth) as response:
             if not response.status_code == 200:
                 print(f'Response code {response.status_code}, from url {url}')
@@ -700,6 +706,13 @@ class Frost:
                 return response
 
     def query_parameters(self, input_vars) -> str:
+        """
+        Description:
+            Creates the query parameters to add into the request url
+        Args:
+            input_vars: array of parameters to add to the url, come from the 
+                        input to the get_* functions
+        """
         query_parameters = ''
         for key, value in input_vars.items():
             if not value == None:
