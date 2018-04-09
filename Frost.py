@@ -20,7 +20,7 @@ class Frost:
             client_secret = client_secret.split(' # ')[0].strip()
         self.auth = requests.auth.HTTPBasicAuth(client_id,'')
 
-        self.station_ids = []
+        self.station_ids = {}
 
     def get_elements_code_tables(self,
                                  *,
@@ -739,11 +739,11 @@ class Frost:
             longitude:          longitude coordinate of wanted point in WGS84 
             length_of_square:   length of side of square to search for stations
         """
-        self.station_ids = []
+        self.station_ids = {}
         polygon = self.calculate_polygon(latitude, longitude, length_of_square=length_of_square)
         status_code, response_json = self.get_sources(geometry = f'POLYGON(({polygon}))')
         for data in response_json['data']:
-            self.station_ids.append(data['id'])
+            self.station_ids[data['id']] = []
 
     def calculate_polygon(self,
                           latitude: float,
@@ -776,8 +776,6 @@ class Frost:
         return f'{longitude} {north}, {longitude} {south}, {east} {latitude}, {west} {latitude},'+\
                 f' {longitude} {north}'
 
-        
-         
 
     def test_gets(self) -> None: 
         status_code, response_json = self.get_elements_code_tables()
@@ -801,8 +799,12 @@ if __name__=='__main__':
     test = Frost()
     #test.test_gets()
     test.nearest_stations(latitude=59.9138688,longitude=10.752245399999993)
-    print(test.station_ids)
-    #status_code, response_json = test.get_observations_available_time_series(
-    #        sources = 'SN18700')
-    #for data in response_json['data']:
-    #    print(data)
+    stations = ','.join(test.station_ids)
+    status_code, response_json = test.get_observations_available_time_series(sources=stations)
+    for point in response_json['data']:
+        test.station_ids[point['sourceId'][:7]].append(point)
+
+    for key, value in test.station_ids.items():
+        for v in value:
+            print(v)
+    
