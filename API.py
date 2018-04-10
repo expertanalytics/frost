@@ -728,6 +728,9 @@ class Frost:
 
 
     def test_gets(self) -> None: 
+        """
+        Function to test all GET requests in API
+        """
         status_code, response_json = self.get_elements_code_tables()
         status_code, response_json = self.get_elements() 
         status_code, response_json = self.get_sources() 
