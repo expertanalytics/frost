@@ -22,16 +22,26 @@ class Stations(Frost):
 
     def has(self,
             *,
+            data_type: str = None,
             show_all: bool = True) -> None:
-        if show_all:
-            station_ids = ','.join(i for i in self.stations)
-            for station_id in self.stations:
-                self.stations[station_id]['available'] = []
-            print(station_ids)
-            sc, r_json = self.get_observations_available_time_series(sources=station_ids)
-            for point in r_json['data']:
-                self.stations[point['sourceId'][:7]]['available'].append(point)
-            
+        station_ids = ','.join(i for i in self.stations)
+        for station_id in self.stations:
+            self.stations[station_id]['available'] = []
+        sc, r_json = self.get_observations_available_time_series(sources=station_ids)
+        for point in r_json['data']:
+            self.stations[point['sourceId'][:7]]['available'].append(point)
+
+        if data_type:
+            for station_id, data in self.stations.items(): 
+                print(f'Available data for station {station_id}:')
+                print('{:25}{:63}{:20}'.format('Valid from','data type', 'time resolution'))
+                for time_series in data['available']:
+                    if data_type in time_series['elementId']:
+                        print(f'{time_series["validFrom"]:25}{time_series["elementId"]:63}' +\
+                                f'{time_series["timeResolution"]:20}')
+                print('')
+
+        elif show_all:
             for station_id, data in self.stations.items():
                 print(f'Available data for station {station_id}:')
                 print('{:25}{:63}{:20}'.format('Valid from','data type', 'time resolution'))
@@ -39,6 +49,8 @@ class Stations(Frost):
                     print(f'{time_series["validFrom"]:25}{time_series["elementId"]:63}' +\
                             f'{time_series["timeResolution"]:20}')
                 print('')
+
+
 
     def nearest_stations(self) -> None:
                         #latitude: float,
@@ -54,8 +66,6 @@ class Stations(Frost):
             length_of_square:   length of side of square to search for stations
         """
         self.station_ids = {}
-        #polygon = self.calculate_polygon(
-        #        self.latitude, self.longitude, length_of_square=length_of_square)
         polygon = self.calculate_polygon()
         status_code, response_json = self.get_sources(geometry = f'POLYGON(({polygon}))')
         for data in response_json['data']:
@@ -117,7 +127,7 @@ class Stations(Frost):
 if __name__=="__main__":
     test = Stations(latitude=59.9138688,longitude=10.752245399999993,length_of_square=11.0)
     test.nearest_stations()
-    for key, value in test.stations.items():
-        print(value['distance'])
-    #test.has()
+    #for key, value in test.stations.items():
+    #    print(value['distance'])
+    test.has(data_type = 'precipitation')
     #test.oslo_test()
