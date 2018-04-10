@@ -20,6 +20,25 @@ class Stations(Frost):
         self.longitude = longitude
         self.length_of_square = length_of_square
 
+    def has(self,
+            *,
+            show_all: bool = True) -> None:
+        if show_all:
+            station_ids = ','.join(i for i in self.stations)
+            for station_id in self.stations:
+                self.stations[station_id]['available'] = []
+            print(station_ids)
+            sc, r_json = self.get_observations_available_time_series(sources=station_ids)
+            for point in r_json['data']:
+                self.stations[point['sourceId'][:7]]['available'].append(point)
+            
+            for station_id, data in self.stations.items():
+                print(f'Available data for station {station_id}:')
+                print('{:25}{:63}{:20}'.format('Valid from','data type', 'time resolution'))
+                for time_series in data['available']:
+                    print(f'{time_series["validFrom"]:25}{time_series["elementId"]:63}' +\
+                            f'{time_series["timeResolution"]:20}')
+                print('')
     def nearest_stations(self) -> None:
                         #latitude: float,
                         #longitude: float,
@@ -72,6 +91,10 @@ class Stations(Frost):
                f'{east} {self.latitude}, {west} {self.latitude},'+\
                f' {self.longitude} {north}'
     
+    def shortest_distance(self) -> str:
+        pass 
+        
+
     def oslo_test(self):
         """
         Function to test finding stations in a square of 100 km^2 around Oslo 
@@ -83,4 +106,6 @@ class Stations(Frost):
 
 if __name__=="__main__":
     test = Stations(latitude=59.9138688,longitude=10.752245399999993,length_of_square=11.0)
-    test.oslo_test()
+    test.nearest_stations()
+    test.has()
+    #test.oslo_test()
