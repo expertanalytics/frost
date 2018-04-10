@@ -39,6 +39,7 @@ class Stations(Frost):
                     print(f'{time_series["validFrom"]:25}{time_series["elementId"]:63}' +\
                             f'{time_series["timeResolution"]:20}')
                 print('')
+
     def nearest_stations(self) -> None:
                         #latitude: float,
                         #longitude: float,
@@ -59,6 +60,7 @@ class Stations(Frost):
         status_code, response_json = self.get_sources(geometry = f'POLYGON(({polygon}))')
         for data in response_json['data']:
             self.stations[data['id']] = data
+        self.distance() 
 
     def calculate_polygon(self) -> str:
                           #latitude: float,
@@ -86,13 +88,21 @@ class Stations(Frost):
         south = self.latitude - length_to_corner_lat
         east = self.longitude + length_to_corner_lon
         west = self.longitude - length_to_corner_lon
-        
+
         return f'{self.longitude} {north}, {self.longitude} {south},' +\
                f'{east} {self.latitude}, {west} {self.latitude},'+\
                f' {self.longitude} {north}'
     
-    def shortest_distance(self) -> str:
-        pass 
+    def distance(self) -> str:
+        point_lat_rad = math.radians(self.latitude)
+        point_lon_rad = math.radians(self.longitude)
+        for station, data in self.stations.items():
+            lon, lat =  data['geometry']['coordinates']
+            lat_rad = math.radians(lat)
+            lon_rad = math.radians(lon)
+            x = (lon_rad - point_lon_rad)*math.cos((point_lat_rad + lat_rad)/2)
+            y = lat_rad - point_lat_rad
+            self.stations[station]['distance'] = math.sqrt(x*x + y*y)
         
 
     def oslo_test(self):
@@ -107,5 +117,7 @@ class Stations(Frost):
 if __name__=="__main__":
     test = Stations(latitude=59.9138688,longitude=10.752245399999993,length_of_square=11.0)
     test.nearest_stations()
-    test.has()
+    for key, value in test.stations.items():
+        print(value['distance'])
+    #test.has()
     #test.oslo_test()
