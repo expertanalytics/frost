@@ -740,7 +740,9 @@ class Frost:
         """
         Description:
             Converts datetime object to time string needed for referenceTime in
-            API
+            API. If no start or end time is given the latest observed data will
+            be retrieved. If no end time is given observations from start up 
+            until now will be retrieved. 
         Args:
             repeat:     how many times to repeat interval
             seperation: between observation, ex. 1D is 1 day duration between
@@ -756,8 +758,7 @@ class Frost:
             time_string += 'latest'
         elif not end_time:
             time_string += start_time.strftime('%Y-%m-%dT%H:%M:%S.000Z') + '/' +\
-                           datetime.datetime.now().\
-                           datetime.datetime.strftime('%Y-%m-%dT%H:%M:%S.000Z')
+                           datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S.000Z')
         else:
             time_string += start_time.strftime('%Y-%m-%dT%H:%M:%S.000Z') + '/' +\
                            end_time.strftime('%Y-%m-%dT%H:%M:%S.000Z')
