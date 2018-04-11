@@ -164,7 +164,7 @@ class Stations(Frost):
             end_time:   end time of observational data wanted
         """
         #if not sources:
-        #    sources = #','.join(source for source in self.stations)
+        #    sources = ','.join(source for source in self.stations)
         #else:
         #    sources = ','.join(source for source in sources)
         elements = ','.join(element for element in elements)
@@ -176,6 +176,56 @@ class Stations(Frost):
                                      reference_time = time_string,
                                      elements = elements)
                                      
+    def observation_air_temperature(self,
+                                    source: str,
+                                    *,
+                                    repeat: int = 0,
+                                    seperation: str = None,
+                                    start_time: 'datetime.datetime' = None,
+                                    end_time: 'datetime.datetime' = None) -> None:
+        """
+        Description:
+            A simplified observations call for air temperature for  one station 
+        Args:
+            source:     station ID
+            repeat:     how many times to repeat interval
+            seperation: seperation between observations, ex 1D is 1 day 
+                        duration between each interval
+            start_time: starting time of observational data wanted
+            end_time:   end time of observational data wanted
+        """
+        return self.observational_data(source = source,
+                                       elements = ['air_temperature'],
+                                       repeat = repeat,
+                                       seperation = seperation,
+                                       start_time = start_time,
+                                       end_time = end_time)
+
+    def observation_precipitation_amount(self,
+                                         source: str,
+                                         *,
+                                         repeat: int = 0,
+                                         seperation: str = None,
+                                         start_time: 'datetime.datetime' = None,
+                                         end_time: 'datetime.datetime' = None) -> None:
+        """
+        Description:
+            A simplified observations call for percepitation amount for one 
+            station 
+        Args:
+            source:     station ID
+            repeat:     how many times to repeat interval
+            seperation: seperation between observations, ex 1D is 1 day 
+                        duration between each interval
+            start_time: starting time of observational data wanted
+            end_time:   end time of observational data wanted
+        """
+        return self.observational_data(source = source,
+                                       elements = ['precipitation_amount'],
+                                       repeat = repeat,
+                                       seperation = seperation,
+                                       start_time = start_time,
+                                       end_time = end_time)
 
     def oslo_test(self) -> None:
         """
@@ -188,14 +238,26 @@ class Stations(Frost):
             print(key, value)
 
 if __name__=="__main__":
-    test = Stations(latitude=59.9138688,longitude=10.752245399999993,length_of_square=11.0)
-     
-    sc, r_json = test.observational_data(source = 'SN18700',
-                                         elements = ['air_temperature'],
-                                         start_time = datetime.datetime(2018, 1, 1))
-    for data in r_json['data']:
-        for obs in data['observations']:
-            print(obs)
+    test = Stations(latitude=59.9138688,longitude=10.752245399999993,length_of_square=20.0)
+    closest = ''
+    for station, data in test.stations.items():
+        available_data_types = [avail['elementId'] for avail in data['available']]
+        if closest:
+            close = test.stations[closest]
+            if data['distance'] < close['distance']:
+                if any('precipitation_amount' == data_type for data_type in available_data_types):
+                    closest = station
+        elif any('precipitation_amount' == data_type for data_type in available_data_types):
+            closest = station
+        print(closest)
+    #sc, r_json = test.observational_data(source = closest,
+    #                                     elements = ['air_temperature'],
+    #                                     start_time = datetime.datetime(2018, 1, 1))
+    #sc, r_json = test.observation_precipitation_amount(source = closest)
+    #for data in r_json['data']:
+    #    print(data['referenceTime'])
+    #    for obs in data['observations']:
+    #        print(obs)
     #test.has(data_type = 'precipitation')
     #test.has()
     #test.oslo_test()
