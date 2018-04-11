@@ -5,9 +5,10 @@ This file is licensed under the terms of the MIT license.
 See <https://github.com/expertanalytics/frost/blob/master/LICENSE>
 """
 
-import requests
-import inspect
 import sys
+import inspect
+import requests
+import datetime
 
 class Frost:
     def __init__(self) -> None:
@@ -730,7 +731,41 @@ class Frost:
                     query_parameters+= f'&{key}={value}'
         return query_parameters
 
+    def convert_datetime(self,
+                         *,
+                         repeat: int = 0,
+                         seperation: str = None,
+                         start_time: 'datetime.datetime' = None,
+                         end_time: 'datetime.datetime' = None) -> str:
+        """
+        Description:
+            Converts datetime object to time string needed for referenceTime in
+            API
+        Args:
+            repeat:     how many times to repeat interval
+            seperation: between observation, ex. 1D is 1 day duration between
+                        each interval
+            start_time: starting time of observational data wanted
+            end_time:   end time of observational data wanted
+        """
+        time_string = ''
+        if repeat:
+            time_string += f'R{repeat}/'
 
+        if not start_time:
+            time_string += 'latest'
+        elif not end_time:
+            time_string += start_time.strftime('%Y-%m-%dT%H:%M:%S.000Z') + '/' +\
+                           datetime.datetime.now().\
+                           datetime.datetime.strftime('%Y-%m-%dT%H:%M:%S.000Z')
+        else:
+            time_string += start_time.strftime('%Y-%m-%dT%H:%M:%S.000Z') + '/' +\
+                           end_time.strftime('%Y-%m-%dT%H:%M:%S.000Z')
+
+        if seperation:
+            time_string += '/P{seperation}'
+
+        return time_string
 
     def test_gets(self) -> None: 
         """
