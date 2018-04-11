@@ -9,11 +9,25 @@ from API import Frost
 import math
 
 class Stations(Frost):
+    """
+    Description:
+        Finds all stations within a square of chosen size from a point with 
+        WGS84 coordinates and collects available observational data from each
+        station
+    """
     def __init__(self,
                  latitude: float,
                  longitude: float,
                  *,
                  length_of_square: float = 10.0) -> None:
+        """
+        Description:
+            Class instance initialization
+        Args:
+            latitude:           latitudal coordinate
+            longitude:          longitudal coordinate
+            length_of_square:   length of side of square in km
+        """
         super().__init__()
         self.stations = {}
         self.latitude = latitude
@@ -24,6 +38,13 @@ class Stations(Frost):
             *,
             data_type: str = None,
             show_all: bool = True) -> None:
+        """
+        Description:
+            To be done
+        Args:
+            data_type:  which observational data type to look for
+            show_all:   see all available data types from each station
+        """
         station_ids = ','.join(i for i in self.stations)
         for station_id in self.stations:
             self.stations[station_id]['available'] = []
@@ -53,10 +74,6 @@ class Stations(Frost):
 
 
     def nearest_stations(self) -> None:
-                        #latitude: float,
-                        #longitude: float,
-                        #*,
-                        #length_of_square: float = 10.0) -> None:
         """
         Description:
             Finds all stations in the vicinity of the point given within a square
@@ -73,10 +90,7 @@ class Stations(Frost):
         self.distance() 
 
     def calculate_polygon(self) -> str:
-                          #latitude: float,
-                          #longitude: float,
-                          #length_of_square: float) -> str:
-        """
+       """
         Description:
             Creates the latitude/longitude coordinates of corners of a square
             around the point given
@@ -91,8 +105,8 @@ class Stations(Frost):
 
         length_half_side = self.length_of_square/2
 
-        length_to_corner_lat = length_half_side/one_deg_lat # deg
-        length_to_corner_lon = length_half_side/one_deg_lon # deg
+        length_to_corner_lat = length_half_side/one_deg_lat
+        length_to_corner_lon = length_half_side/one_deg_lon
        
         north = self.latitude + length_to_corner_lat
         south = self.latitude - length_to_corner_lat
@@ -103,7 +117,12 @@ class Stations(Frost):
                f'{east} {self.latitude}, {west} {self.latitude},'+\
                f' {self.longitude} {north}'
     
-    def distance(self) -> str:
+    def distance(self) -> None:
+        """
+        Description:
+            Calculates distance from original point to each station and adds it
+            to the correspondng stations dictionary
+        """
         point_lat_rad = math.radians(self.latitude)
         point_lon_rad = math.radians(self.longitude)
         for station, data in self.stations.items():
@@ -115,10 +134,10 @@ class Stations(Frost):
             self.stations[station]['distance'] = math.sqrt(x*x + y*y)
         
 
-    def oslo_test(self):
+    def oslo_test(self) -> None:
         """
-        Function to test finding stations in a square of 100 km^2 around Oslo 
-        center
+        Descripton:
+            Function to test finding stations within a squar around Oslo center
         """
         self.nearest_stations()
         for key, value in self.stations.items():
