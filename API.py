@@ -7,18 +7,23 @@ See <https://github.com/expertanalytics/frost/blob/master/LICENSE>
 
 import requests
 import inspect
+import sys
 
 class Frost:
     def __init__(self) -> None:
         self.base_url = 'https://frost.met.no/'
         self.headers = {}
         self.api_version = '0'
-        with open('secrets/credentials.txt', 'r') as secrets:
-            client_id, client_secret  = secrets.readlines()
-            client_id = client_id.split(' # ')[0].strip()
-            client_secret = client_secret.split(' # ')[0].strip()
-        self.auth = requests.auth.HTTPBasicAuth(client_id,'')
-
+        try:
+            with open('secrets/credentials.txt', 'r') as secrets:
+                client_id, client_secret  = secrets.readlines()
+                client_id = client_id.split(' # ')[0].strip()
+                client_secret = client_secret.split(' # ')[0].strip()
+            self.auth = requests.auth.HTTPBasicAuth(client_id,'')
+        except FileNotFoundError as error:
+            print('You need a secrets folder with a text file called credentials.txt with your
+                    credentials in it, see README.md for details')
+            sys.exit(1)
         self.stations = {}
 
     def get_elements_code_tables(self,
