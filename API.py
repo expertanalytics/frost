@@ -21,8 +21,8 @@ class Frost:
                 client_secret = client_secret.split(' # ')[0].strip()
             self.auth = requests.auth.HTTPBasicAuth(client_id,'')
         except FileNotFoundError as error:
-            print('You need a secrets folder with a text file called credentials.txt with your
-                    credentials in it, see README.md for details')
+            print('You need a secrets folder with a text file called credentials.txt with your ' +\
+                  'credentials in it, see README.md for details')
             sys.exit(1)
         self.stations = {}
 
