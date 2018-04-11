@@ -33,6 +33,7 @@ class Stations(Frost):
         self.latitude = latitude
         self.longitude = longitude
         self.length_of_square = length_of_square
+        self.find_stations()
 
     def has(self,
             *,
@@ -55,7 +56,7 @@ class Stations(Frost):
 
         if data_type:
             for station_id, data in self.stations.items():
-                print(f'Available data for station {station_id}:')
+                print(f'Available data for station {station_id}, distance {data["distance"]}:')
                 print('{:25}{:63}{:20}'.format('Valid from','data type', 'time resolution'))
                 for time_series in data['available']:
                     if data_type in time_series['elementId']:
@@ -72,7 +73,7 @@ class Stations(Frost):
                             f'{time_series["timeResolution"]:20}')
                 print('')
 
-    def nearest_stations(self) -> None:
+    def find_stations(self) -> None:
         """
         Description:
             Finds all stations in the vicinity of the point given within a
@@ -143,8 +144,5 @@ class Stations(Frost):
 
 if __name__=="__main__":
     test = Stations(latitude=59.9138688,longitude=10.752245399999993,length_of_square=11.0)
-    test.nearest_stations()
-    #for key, value in test.stations.items():
-    #    print(value['distance'])
     test.has(data_type = 'precipitation')
     #test.oslo_test()
