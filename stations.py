@@ -54,9 +54,13 @@ class Stations(Frost):
         for point in r_json['data']:
             self.stations[point['sourceId'][:7]]['available'].append(point)
 
+        title_head = 'Available data for station {}, {}, distance {}:'
         if data_type:
             for station_id, data in self.stations.items():
-                print(f'Available data for station {station_id}, distance {data["distance"]}:')
+                try:
+                    print(title_head.format(station_id, data["shortName"], data["distance"]))
+                except KeyError as error:
+                    print(title_head.format(station_id, data["name"], data["distance"]))
                 print('{:25}{:63}{:20}'.format('Valid from','data type', 'time resolution'))
                 for time_series in data['available']:
                     if data_type in time_series['elementId']:
@@ -66,7 +70,10 @@ class Stations(Frost):
 
         elif show_all:
             for station_id, data in self.stations.items():
-                print(f'Available data for station {station_id}:')
+                try:
+                    print(title_head.format(station_id, data["shortName"], data["distance"]))
+                except KeyError as error:
+                    print(title_head.format(station_id, data["name"], data["distance"]))
                 print('{:25}{:63}{:20}'.format('Valid from','data type', 'time resolution'))
                 for time_series in data['available']:
                     print(f'{time_series["validFrom"]:25}{time_series["elementId"]:63}' +\
@@ -138,7 +145,7 @@ class Stations(Frost):
         Descripton:
             Function to test finding stations within a squar around Oslo center
         """
-        self.nearest_stations()
+        self.find_stations()
         for key, value in self.stations.items():
             print(key, value)
 
