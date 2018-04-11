@@ -7,6 +7,7 @@ See <https://github.com/expertanalytics/frost/blob/master/LICENSE>
 
 from API import Frost
 import math
+import datetime
 
 class Stations(Frost):
     """
@@ -34,6 +35,7 @@ class Stations(Frost):
         self.longitude = longitude
         self.length_of_square = length_of_square
         self.find_stations()
+        self.has()
 
     def has(self,
             *,
@@ -140,10 +142,46 @@ class Stations(Frost):
             y = lat_rad - point_lat_rad
             self.stations[station]['distance'] = math.sqrt(x*x + y*y)
 
+    def observational_data(self,
+                           source: str,
+                           *,
+                           elements: list = ['air_temperature'],
+                           repeat: int = 0,
+                           seperation: str = None,
+                           start_time: 'datetime.datetime' = None,
+                           end_time: 'datetime.datetime' = None) -> None:
+        """
+        Description:
+            A simplified observations call for one station. For a fully
+            customizable call, see documentation in API.get_observations()
+        Args:
+            elements:   list of which data type to access
+            source:     station ID
+            repeat:     how many times to repeat interval
+            seperation: seperation between observations, ex 1D is 1 day 
+                        duration between each interval
+            start_time: starting time of observational data wanted
+            end_time:   end time of observational data wanted
+        """
+        #if not sources:
+        #    sources = #','.join(source for source in self.stations)
+        #else:
+        #    sources = ','.join(source for source in sources)
+        elements = ','.join(element for element in elements)
+        time_string = self.convert_datetime(repeat = repeat,
+                                            seperation = seperation,
+                                            start_time = start_time,
+                                            end_time = end_time)
+        return self.get_observations(sources = source,
+                                     reference_time = time_string,
+                                     elements = elements)
+                                     
+
     def oslo_test(self) -> None:
         """
         Descripton:
-            Function to test finding stations within a squar around Oslo center
+            Function to test finding stations within a square around Oslo 
+            center
         """
         self.find_stations()
         for key, value in self.stations.items():
@@ -151,5 +189,13 @@ class Stations(Frost):
 
 if __name__=="__main__":
     test = Stations(latitude=59.9138688,longitude=10.752245399999993,length_of_square=11.0)
-    test.has(data_type = 'precipitation')
+     
+    sc, r_json = test.observational_data(source = 'SN18700',
+                                         elements = ['air_temperature'],
+                                         start_time = datetime.datetime(2018, 1, 1))
+    for data in r_json['data']:
+        for obs in data['observations']:
+            print(obs)
+    #test.has(data_type = 'precipitation')
+    #test.has()
     #test.oslo_test()
