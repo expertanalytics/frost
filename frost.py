@@ -5,11 +5,12 @@ This file is licensed under the terms of the MIT license.
 See <https://github.com/expertanalytics/frost/blob/master/LICENSE>
 """
 
-import sys
-import inspect
+import configparser
 import requests
 import datetime
+import inspect
 import math
+import sys
 import os
 
 class API:
@@ -17,22 +18,26 @@ class API:
         self.base_url = 'https://frost.met.no/'
         self.headers = {}
         self.api_version = '0'
-        if os.path.isfile('credentials.txt') and 'FROST_CLIENT_ID' not in os.environ:
-            with open('credentials.txt', 'r') as secrets:
-                client_id, client_secret  = secrets.readlines()
-                client_id = client_id.split(' # ')[0].strip()
-                client_secret = client_secret.split(' # ')[0].strip()
-                os.environ['FROST_CLIENT_ID'] = client_id
-        elif 'FROST_CLIENT_ID' in os.environ:
-            pass
-
+        secret = configparser.ConfigParser()
+        if os.path.isfile('credentials.txt'):
+            secret.read('credentials.txt')
+            if 'xxxxxxxx' in secret['SECRET']['client_id']:
+                print('You need to change from the default credentials in credentials.txt')
+                sys.exit(1)
+            #with open('credentials.txt', 'r') as secrets:
+            #    client_id, client_secret  = secrets.readlines()
+            #    client_id = client_id.split(' # ')[0].strip()
+            #    client_secret = client_secret.split(' # ')[0].strip()
         else:
             print('You need a credentials.txt with your ' +\
-                  'credentials in it or put the client id in FROST_CLIENT_ID environment' +\
-                  'variable, see README.md for details')
+                  'credentials in it, see README.md for details')
+            with open('credentials.txt', 'w') as secrets:
+                secret['SECRET'] = {'client_id' : 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',\
+                                    'client_secret' : 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'}
+                secret.write(secrets)
             sys.exit(1)
 
-        self.auth = requests.auth.HTTPBasicAuth(os.environ['FROST_CLIENT_ID'],'')
+        self.auth = requests.auth.HTTPBasicAuth(secret['SECRET']['client_id'],'')
         self.stations = {}
 
     def get_elements_code_tables(self,
