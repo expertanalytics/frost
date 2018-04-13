@@ -5,7 +5,7 @@ This file is licensed under the terms of the MIT license.
 See <https://github.com/expertanalytics/frost/blob/master/LICENSE>
 """
 
-from API import Frost
+from frost.API import Frost
 import math
 import datetime
 
