@@ -24,10 +24,6 @@ class API:
             if 'xxxxxxxx' in secret['SECRET']['client_id']:
                 print('You need to change from the default credentials in credentials.txt')
                 sys.exit(1)
-            #with open('credentials.txt', 'r') as secrets:
-            #    client_id, client_secret  = secrets.readlines()
-            #    client_id = client_id.split(' # ')[0].strip()
-            #    client_secret = client_secret.split(' # ')[0].strip()
         else:
             print('You need a credentials.txt with your ' +\
                   'credentials in it, see README.md for details')
@@ -1028,7 +1024,7 @@ class Stations(API):
 
 
 if __name__=='__main__':
-    api = False
+    api = True
     if api:
         test = API()
         test.test_gets()
