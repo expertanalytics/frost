@@ -8,6 +8,7 @@ and put them in the `secrets/credentials.txt` file as
 xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx # Client ID
 xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx # Client Secret
 ```
+or in the `FROST_CLIENT_ID` environment variable.
 
 ### TODO:
 - Structure response data

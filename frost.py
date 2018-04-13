@@ -10,22 +10,29 @@ import inspect
 import requests
 import datetime
 import math
+import os
 
 class API:
     def __init__(self) -> None:
         self.base_url = 'https://frost.met.no/'
         self.headers = {}
         self.api_version = '0'
-        try:
-            with open('secrets/credentials.txt', 'r') as secrets:
+        if os.path.isfile('credentials.txt') and 'FROST_CLIENT_ID' not in os.environ:
+            with open('credentials.txt', 'r') as secrets:
                 client_id, client_secret  = secrets.readlines()
                 client_id = client_id.split(' # ')[0].strip()
                 client_secret = client_secret.split(' # ')[0].strip()
-            self.auth = requests.auth.HTTPBasicAuth(client_id,'')
-        except FileNotFoundError as error:
-            print('You need a secrets folder with a text file called credentials.txt with your ' +\
-                  'credentials in it, see README.md for details')
+                os.environ['FROST_CLIENT_ID'] = client_id
+        elif 'FROST_CLIENT_ID' in os.environ:
+            pass
+
+        else:
+            print('You need a credentials.txt with your ' +\
+                  'credentials in it or put the client id in FROST_CLIENT_ID environment' +\
+                  'variable, see README.md for details')
             sys.exit(1)
+
+        self.auth = requests.auth.HTTPBasicAuth(os.environ['FROST_CLIENT_ID'],'')
         self.stations = {}
 
     def get_elements_code_tables(self,
