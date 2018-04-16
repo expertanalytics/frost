@@ -839,8 +839,7 @@ class Stations(API):
 
     def has(self,
             *,
-            data_type: str = None,
-            show_all: bool = True) -> None:
+            data_type: str = None) -> None:
         """
         Description:
             To be done
@@ -862,7 +861,7 @@ class Stations(API):
                                 f'{time_series["timeResolution"]:20}')
                 print('')
 
-        elif show_all:
+        else:
             for station_id, station in self.stations.items():
                 print(title_head.format(station_id, station.name, station.distance))
                 print('{:25}{:63}{:20}'.format('Valid from','data type', 'time resolution'))
