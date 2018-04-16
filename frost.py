@@ -850,10 +850,7 @@ class Stations(API):
         title_head = 'Available data for station {}, {}, distance {}:'
         if data_type:
             for station_id, station in self.stations.items():
-                try:
-                    print(title_head.format(station_id, station.available["shortName"], station.distance))
-                except KeyError as error:
-                    print(title_head.format(station_id, station.name, station.distance))
+                print(title_head.format(station_id, station.name, station.distance))
                 print('{:25}{:63}{:20}'.format('Valid from','data type', 'time resolution'))
                 for time_series in station.available:
                     if data_type in time_series['elementId']:
