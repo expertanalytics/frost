@@ -14,16 +14,6 @@ import math
 import sys
 import os
 
-class Station(typing.NamedTuple):
-    station_id: str
-    name: str
-    coords: list
-    valid_from: str
-    municipality: str
-    distance: float
-    available: list 
-
-
 class API:
     def __init__(self) -> None:
         self.base_url = 'https://frost.met.no/'
@@ -807,6 +797,16 @@ class API:
         status_code, response_json = self.get_climate_normals_available()
         status_code, response_json = self.get_frequencies_rainfall()
         status_code, response_json = self.get_frequencies_rainfall_available_sources()
+
+
+class Station(typing.NamedTuple):
+    station_id: str
+    name: str
+    coords: list
+    valid_from: str
+    municipality: str
+    distance: float
+    available: list 
 
 
 class Stations(API):
