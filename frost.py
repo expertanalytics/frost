@@ -9,9 +9,20 @@ import configparser
 import requests
 import datetime
 import inspect
+import typing
 import math
 import sys
 import os
+
+class Station(typing.NamedTuple):
+    station_id: str
+    name: str
+    coords: list
+    valid_from: str
+    municipality: str
+    distance: float
+    available: list 
+
 
 class API:
     def __init__(self) -> None:
@@ -837,36 +848,25 @@ class Stations(API):
             data_type:  which observational data type to look for
             show_all:   see all available data types from each station
         """
-        station_ids = ','.join(i for i in self.stations)
-        for station_id in self.stations:
-            self.stations[station_id]['available'] = []
-
-        sc, r_json = self.get_observations_available_time_series(sources=station_ids)
-        for point in r_json['data']:
-            self.stations[point['sourceId'][:7]]['available'].append(point)
-
         title_head = 'Available data for station {}, {}, distance {}:'
         if data_type:
-            for station_id, data in self.stations.items():
+            for station_id, station in self.stations.items():
                 try:
-                    print(title_head.format(station_id, data["shortName"], data["distance"]))
+                    print(title_head.format(station_id, station.available["shortName"], station.distance))
                 except KeyError as error:
-                    print(title_head.format(station_id, data["name"], data["distance"]))
+                    print(title_head.format(station_id, station.name, station.distance))
                 print('{:25}{:63}{:20}'.format('Valid from','data type', 'time resolution'))
-                for time_series in data['available']:
+                for time_series in station.available:
                     if data_type in time_series['elementId']:
                         print(f'{time_series["validFrom"]:25}{time_series["elementId"]:63}' +\
                                 f'{time_series["timeResolution"]:20}')
                 print('')
 
         elif show_all:
-            for station_id, data in self.stations.items():
-                try:
-                    print(title_head.format(station_id, data["shortName"], data["distance"]))
-                except KeyError as error:
-                    print(title_head.format(station_id, data["name"], data["distance"]))
+            for station_id, station in self.stations.items():
+                print(title_head.format(station_id, station.name, station.distance))
                 print('{:25}{:63}{:20}'.format('Valid from','data type', 'time resolution'))
-                for time_series in data['available']:
+                for time_series in station.available:
                     print(f'{time_series["validFrom"]:25}{time_series["elementId"]:63}' +\
                             f'{time_series["timeResolution"]:20}')
                 print('')
@@ -885,8 +885,22 @@ class Stations(API):
         polygon = self.calculate_polygon()
         status_code, response_json = self.get_sources(geometry = f'POLYGON(({polygon}))')
         for data in response_json['data']:
-            self.stations[data['id']] = data
-        self.distance()
+            station_id = data['id']
+            name = data['name']
+            coords = [data['geometry']['coordinates'][1], data['geometry']['coordinates'][0]]
+            valid_from = data['validFrom']
+            municipality = data['municipality']
+            distance = self.distance(coords=coords)
+            rs, rs_json = self.get_observations_available_time_series(sources=station_id)
+            available = [data for data in rs_json['data']]
+
+            self.stations[station_id] = Station(station_id = station_id,
+                                                name = name,
+                                                coords = coords,
+                                                valid_from = valid_from, 
+                                                municipality = municipality,
+                                                distance = distance,
+                                                available = available)
 
     def calculate_polygon(self) -> str:
         """
@@ -915,7 +929,7 @@ class Stations(API):
                f' {east} {self.latitude}, {west} {self.latitude},'+\
                f' {self.longitude} {north}'
 
-    def distance(self) -> None:
+    def distance(self, coords: list) -> None:
         """
         Description:
             Calculates distance from original point to each station and adds it
@@ -923,13 +937,12 @@ class Stations(API):
         """
         point_lat_rad = math.radians(self.latitude)
         point_lon_rad = math.radians(self.longitude)
-        for station, data in self.stations.items():
-            lon, lat =  data['geometry']['coordinates']
-            lat_rad = math.radians(lat)
-            lon_rad = math.radians(lon)
-            x = (lon_rad - point_lon_rad)*math.cos((point_lat_rad + lat_rad)/2)
-            y = lat_rad - point_lat_rad
-            self.stations[station]['distance'] = math.sqrt(x*x + y*y)
+        lat, lon = coords
+        lat_rad = math.radians(lat)
+        lon_rad = math.radians(lon)
+        x = (lon_rad - point_lon_rad)*math.cos((point_lat_rad + lat_rad)/2)
+        y = lat_rad - point_lat_rad
+        return math.sqrt(x*x + y*y)
 
     def observational_data(self,
                            source: str,
@@ -1012,45 +1025,11 @@ class Stations(API):
                                        start_time = start_time,
                                        end_time = end_time)
 
-    def oslo_test(self) -> None:
-        """
-        Descripton:
-            Function to test finding stations within a square around Oslo 
-            center
-        """
-        self.find_stations()
-        for key, value in self.stations.items():
-            print(key, value)
-
 
 if __name__=='__main__':
-    api = True
+    api = 0
     if api:
         test = API()
         test.test_gets()
-        #test.test_gets()
-        #test.nearest_stations(latitude=59.9138688,longitude=10.752245399999993)
-        #stations = ','.join(test.station_ids)
-        #status_code, response_json = test.get_observations_available_time_series(sources=stations)
-
-        #for point in response_json['data']:
-        #    test.stations[point['sourceId'][:7]].append(point)
-
-        #for key, value in test.station_ids.items():
-        #    for v in value:
-        #        print(v)
-    
     else:
-        test = Stations(latitude=59.9138688,longitude=10.752245399999993,length_of_square=20.0)
-        test.oslo_test()
-        #closest = ''
-        #for station, data in test.stations.items():
-        #    available_data_types = [avail['elementId'] for avail in data['available']]
-        #    if closest:
-        #        close = test.stations[closest]
-        #        if data['distance'] < close['distance']:
-        #            if any('precipitation_amount' == data_type for data_type in available_data_types):
-        #                closest = station
-        #    elif any('precipitation_amount' == data_type for data_type in available_data_types):
-        #        closest = station
-        #    print(closest)
+        test = Stations(latitude=59.9138688,longitude=10.752245399999993,length_of_square=5.0)
