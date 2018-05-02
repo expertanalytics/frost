@@ -718,10 +718,10 @@ class API:
             if not response.status_code == 200:
                 print(f'Response code {response.status_code}, from url {url}')
                 print(f'Error: {response.json()["error"]}')
-                raise AssertionError()
+                #raise AssertionError()
             else:
                 print(f'Response code: {response.status_code}, GET {url}')
-                return response
+            return response
 
     def query_parameters(self, input_vars) -> str:
         """
@@ -888,7 +888,11 @@ class Stations(API):
             municipality = data['municipality']
             distance = self.distance(coords=coords)
             rs, rs_json = self.get_observations_available_time_series(sources=station_id)
-            available = [data for data in rs_json['data']]
+            if rs != 200:
+                available = []
+            else:
+                available = [data for data in rs_json['data']]
+
 
             self.stations[station_id] = Station(station_id = station_id,
                                                 name = name,
@@ -1028,4 +1032,5 @@ if __name__=='__main__':
         test = API()
         test.test_gets()
     else:
-        test = Stations(latitude=59.9138688,longitude=10.752245399999993,length_of_square=5.0)
+        #test = Stations(latitude=59.9138688,longitude=10.752245399999993,length_of_square=5.0)
+        test =  Stations(latitude=60.396729, longitude=5.329483, length_of_square=5.0)
